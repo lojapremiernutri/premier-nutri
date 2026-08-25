@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premier Nutri — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#0B1829;--navy-2:#111F33;--navy-3:#172A42;--navy-card:#13233A;--cyan:#00CFFF;--cyan-dark:#00A8D4;--cyan-10:rgba(0,207,255,.08);--yellow:#FFE234;--white:#F0F4F8;--white-dim:rgba(240,244,248,.6);--border:rgba(255,255,255,.08);--border-hover:rgba(255,255,255,.16);--red:#E8625A;--wpp:#25D366;--shadow-sm:0 2px 6px rgba(0,0,0,.25);--shadow-md:0 6px 24px rgba(0,0,0,.35);--radius:12px;--radius-sm:8px}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--navy);color:var(--white);font-family:'Inter',sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif}img{display:block;max-width:100%}
+
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:var(--navy-card);border:1px solid var(--border);border-radius:var(--radius);padding:40px 36px;max-width:400px;width:100%;text-align:center}
+.login-box h2{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
+.login-box p{font-size:13px;color:var(--white-dim);margin-bottom:24px}
+.login-box input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'Inter';margin-bottom:12px;outline:none;background:var(--navy);color:#fff;transition:border-color .15s}
+.login-box input:focus{border-color:var(--cyan)}
+.login-box input::placeholder{color:rgba(240,244,248,.3)}
+.login-box .note{font-size:11.5px;color:var(--white-dim);margin-bottom:16px}
+.login-box .err{color:var(--red);font-size:12px;margin-bottom:12px;min-height:18px}
+.login-toggle{font-size:12.5px;color:var(--cyan);cursor:pointer;margin-top:14px;display:inline-block}
+.login-toggle:hover{text-decoration:underline}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 22px;border:none;border-radius:var(--radius-sm);font-size:13.5px;font-weight:700;cursor:pointer;font-family:'Inter';transition:all .14s}
+.btn-cyan{background:var(--cyan);color:var(--navy)}.btn-cyan:hover{background:#fff}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--white)}.btn-ghost:hover{border-color:var(--white-dim)}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#c94a42}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-block{width:100%}
+
+.app{display:none}
+.topbar{background:var(--navy-2);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:40;border-bottom:1px solid var(--border)}
+.topbar h1{font-size:16px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px}
+.topbar .logout{background:var(--border);border:none;color:var(--white-dim);padding:7px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter'}.topbar .logout:hover{background:var(--border-hover);color:#fff}
+
+.tabs{display:flex;gap:0;background:var(--navy-card);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto}
+.tab{padding:14px 20px;font-size:13.5px;font-weight:600;color:var(--white-dim);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all .12s}
+.tab:hover{color:#fff}.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+
+.content{max-width:1100px;margin:0 auto;padding:28px 24px 60px}
+.panel{display:none}.panel.active{display:block}
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.panel-header h2{font-size:20px;font-weight:800;color:#fff}
+
+.tbl{width:100%;border-collapse:collapse;background:var(--navy-card);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+.tbl th{background:var(--navy-3);text-align:left;padding:12px 14px;font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.05em}
+.tbl td{padding:12px 14px;border-top:1px solid var(--border);font-size:13px;vertical-align:middle}
+.tbl tr:hover td{background:rgba(0,207,255,.03)}
+.tbl .thumb{width:40px;height:40px;border-radius:6px;object-fit:cover;background:var(--navy-3)}
+.tbl .actions{display:flex;gap:6px}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;background:var(--yellow);color:var(--navy)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(5,12,22,.7);z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:var(--navy-card);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:540px;max-height:90vh;overflow-y:auto;transform:translateY(20px);transition:transform .2s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-head{padding:20px 22px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-head h3{font-size:17px;font-weight:800;color:#fff}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--white-dim)}
+.modal-body{padding:18px 22px 24px}
+
+.fg{margin-bottom:16px}.fg label{display:block;font-size:12px;font-weight:600;color:var(--white-dim);margin-bottom:5px}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13.5px;font-family:'Inter';outline:none;background:var(--navy);color:#fff;transition:border-color .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--cyan)}
+.fg textarea{resize:vertical;min-height:60px}
+.fg .hint{font-size:10.5px;color:var(--white-dim);margin-top:4px;font-family:'IBM Plex Mono'}
+.fg select option{background:var(--navy-2)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:500px){.form-row{grid-template-columns:1fr}}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+.img-preview-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.img-preview{position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.img-preview img{width:100%;height:100%;object-fit:cover}
+.img-preview .rm{position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:var(--navy-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px}
+.stat-card .label{font-size:11px;font-weight:600;color:var(--white-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.stat-card .value{font-family:'Plus Jakarta Sans';font-size:28px;font-weight:800;color:var(--cyan)}
+
+.cfg-card{background:var(--navy-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.cfg-card h3{font-size:15px;font-weight:800;color:#fff;margin-bottom:16px}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--cyan);color:var(--navy);padding:12px 22px;border-radius:100px;font-size:13.5px;font-weight:700;opacity:0;transition:all .25s cubic-bezier(.4,0,.2,1);z-index:100;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty-state{text-align:center;padding:60px 20px;color:var(--white-dim);font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <h2>Premier Nutri</h2>
+    <p id="login-title">Entrar no painel administrativo</p>
+    <div class="err" id="login-err"></div>
+    <input type="email" id="login-email" placeholder="Email">
+    <input type="password" id="login-pass" placeholder="Senha" onkeydown="if(event.key==='Enter')doAuth()">
+    <button class="btn btn-cyan btn-block" onclick="doAuth()" id="auth-btn">Entrar</button>
+    <span class="login-toggle" id="login-toggle" onclick="toggleMode()">Primeiro acesso? Criar conta</span>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <div class="topbar">
+    <h1>☘ Premier Nutri — Admin</h1>
+    <button class="logout" onclick="doLogout()">Sair</button>
+  </div>
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</div>
+    <div class="tab" data-tab="products" onclick="switchTab('products')">Produtos</div>
+    <div class="tab" data-tab="categories" onclick="switchTab('categories')">Categorias</div>
+    <div class="tab" data-tab="banners" onclick="switchTab('banners')">Banners</div>
+    <div class="tab" data-tab="config" onclick="switchTab('config')">Configurações</div>
+  </div>
+  <div class="content">
+    <div class="panel active" id="panel-dashboard">
+      <div class="panel-header"><h2>Dashboard</h2></div>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div class="panel" id="panel-products">
+      <div class="panel-header"><h2>Produtos</h2><button class="btn btn-cyan btn-sm" onclick="openProductModal()">+ Novo produto</button></div>
+      <table class="tbl"><thead><tr><th></th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Selo</th><th>Imgs</th><th></th></tr></thead><tbody id="products-tbody"></tbody></table>
+    </div>
+    <div class="panel" id="panel-categories">
+      <div class="panel-header"><h2>Categorias</h2><button class="btn btn-cyan btn-sm" onclick="openCatModal()">+ Nova categoria</button></div>
+      <table class="tbl"><thead><tr><th>ID</th><th>Nome</th><th></th></tr></thead><tbody id="categories-tbody"></tbody></table>
+    </div>
+    <div class="panel" id="panel-banners">
+      <div class="panel-header"><h2>Banners</h2><button class="btn btn-cyan btn-sm" onclick="openBannerModal()">+ Novo banner</button></div>
+      <table class="tbl"><thead><tr><th></th><th>Título</th><th></th></tr></thead><tbody id="banners-tbody"></tbody></table>
+    </div>
+    <div class="panel" id="panel-config">
+      <div class="panel-header"><h2>Configurações</h2></div>
+      <div class="cfg-card"><h3>Dados da loja</h3>
+        <div class="fg"><label>Nome da loja</label><input id="cfg-name"></div>
+        <div class="fg"><label>WhatsApp</label><input id="cfg-wpp" placeholder="5511999999999"><div class="hint">55 + DDD + número, só dígitos</div></div>
+      </div>
+      <div class="cfg-card"><h3>Banner</h3>
+        <div class="form-row">
+          <div class="fg"><label>Autoplay</label><select id="cfg-auto"><option value="true">Sim</option><option value="false">Não</option></select></div>
+          <div class="fg"><label>Intervalo (ms)</label><input type="number" id="cfg-int" value="5000"></div>
+        </div>
+      </div>
+      <button class="btn btn-cyan" onclick="saveConfig()">Salvar configurações</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay" onclick="event.target===this&&closeModal()">
+  <div class="modal"><div class="modal-head"><h3 id="modal-title">Título</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+  <div class="modal-body" id="modal-body"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://ileyrleweonplnpfuncj.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsZXlybGV3ZW9ucGxucGZ1bmNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2NzYxMjEsImV4cCI6MjEwMzI1MjEyMX0.vrUQ4FaMyNhJKlU2igp39ZlHFVfG0oT22wkyVFfpDy4';
+const sb=window.supabase.createClient(SB_URL,SB_KEY);
+
+const money=v=>parseFloat(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+let config={},categories=[],banners=[],products=[];
+let editId=null,isSignup=false,tempImages=[];
+
+/* ====== AUTH ====== */
+function toggleMode(){isSignup=!isSignup;document.getElementById('login-title').textContent=isSignup?'Criar conta de administrador':'Entrar no painel administrativo';document.getElementById('auth-btn').textContent=isSignup?'Criar conta':'Entrar';document.getElementById('login-toggle').textContent=isSignup?'Já tem conta? Entrar':'Primeiro acesso? Criar conta';document.getElementById('login-err').textContent=''}
+async function doAuth(){
+  const email=document.getElementById('login-email').value.trim(),pass=document.getElementById('login-pass').value;
+  if(!email||!pass){document.getElementById('login-err').textContent='Preencha email e senha';return}
+  document.getElementById('auth-btn').textContent='Aguarde...';
+  let res;
+  if(isSignup){res=await sb.auth.signUp({email,password:pass})}
+  else{res=await sb.auth.signInWithPassword({email,password:pass})}
+  if(res.error){document.getElementById('login-err').textContent=res.error.message;document.getElementById('auth-btn').textContent=isSignup?'Criar conta':'Entrar';return}
+  if(isSignup&&res.data?.user?.identities?.length===0){document.getElementById('login-err').textContent='Este email já está cadastrado';document.getElementById('auth-btn').textContent='Criar conta';return}
+  if(isSignup){document.getElementById('login-err').style.color='var(--cyan)';document.getElementById('login-err').textContent='Conta criada! Verifique seu email se necessário, ou tente entrar.';toggleMode();document.getElementById('auth-btn').textContent='Entrar';return}
+  showApp();
+}
+async function checkSession(){const{data:{session}}=await sb.auth.getSession();if(session)showApp()}
+async function doLogout(){await sb.auth.signOut();document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex'}
+
+async function showApp(){
+  document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';
+  await loadAll();
+}
+async function loadAll(){
+  const[{data:cfg},{data:cats},{data:bans},{data:prods}]=await Promise.all([
+    sb.from('config').select('*').single(),
+    sb.from('categories').select('*').order('sort_order'),
+    sb.from('banners').select('*').order('sort_order'),
+    sb.from('products').select('*').order('created_at',{ascending:false})
+  ]);
+  config=cfg||{};categories=cats||[];banners=bans||[];products=prods||[];
+  renderDashboard();renderProducts();renderCategories();renderBanners();loadConfigForm();
+}
+
+/* ====== TABS ====== */
+function switchTab(name){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+name))}
+
+/* ====== DASHBOARD ====== */
+function renderDashboard(){const c=categories.filter(c=>c.id!=='todos');document.getElementById('stats').innerHTML=`<div class="stat-card"><div class="label">Produtos</div><div class="value">${products.length}</div></div><div class="stat-card"><div class="label">Categorias</div><div class="value">${c.length}</div></div><div class="stat-card"><div class="label">Banners</div><div class="value">${banners.length}</div></div><div class="stat-card"><div class="label">Com imagem</div><div class="value">${products.filter(p=>(p.images||[]).length>0).length}</div></div>`}
+
+/* ====== PRODUCTS ====== */
+function renderProducts(){
+  const tb=document.getElementById('products-tbody');
+  if(!products.length){tb.innerHTML='<tr><td colspan="7" class="empty-state">Nenhum produto</td></tr>';return}
+  tb.innerHTML=products.map(p=>{
+    const img=(p.images||[])[0];const catName=(categories.find(c=>c.id===p.category_id)||{}).label||p.category_id;
+    return`<tr><td>${img?`<img class="thumb" src="${img}">`:`<div class="thumb"></div>`}</td><td><strong>${p.name}</strong><br><span style="font-size:11px;color:var(--white-dim)">${(p.description||'').slice(0,50)}</span></td><td>${catName}</td><td style="font-family:'IBM Plex Mono';font-weight:600">${money(p.price)}</td><td>${p.badge?`<span class="badge">${p.badge}</span>`:'-'}</td><td>${(p.images||[]).length}</td><td><div class="actions"><button class="btn btn-ghost btn-sm" onclick="editProduct(${p.id})">Editar</button><button class="btn btn-red btn-sm" onclick="deleteProduct(${p.id})">✕</button></div></td></tr>`}).join('');
+}
+
+function openProductModal(prod){
+  editId=prod?prod.id:null;tempImages=prod?(prod.images||[]).slice():[];
+  document.getElementById('modal-title').textContent=prod?'Editar produto':'Novo produto';
+  const cats=categories.filter(c=>c.id!=='todos');
+  document.getElementById('modal-body').innerHTML=`
+    <div class="fg"><label>Nome</label><input id="f-name" value="${prod?prod.name:''}"></div>
+    <div class="form-row">
+      <div class="fg"><label>Categoria</label><select id="f-cat">${cats.map(c=>`<option value="${c.id}" ${prod&&prod.category_id===c.id?'selected':''}>${c.label}</option>`).join('')}</select></div>
+      <div class="fg"><label>Preço (R$)</label><input type="number" step="0.01" id="f-price" value="${prod?prod.price:''}"></div>
+    </div>
+    <div class="fg"><label>Descrição</label><textarea id="f-desc">${prod?prod.description||'':''}</textarea></div>
+    <div class="fg"><label>Selo (opcional)</label><input id="f-badge" value="${prod&&prod.badge?prod.badge:''}" placeholder="Ex: Novo, -15%, Mais vendido"></div>
+    <div class="fg"><label>Imagens do produto</label>
+      <input type="file" id="f-img-file" accept="image/*" multiple style="margin-bottom:8px">
+      <button class="btn btn-ghost btn-sm" onclick="uploadProductImages()" type="button">⬆ Fazer upload</button>
+      <div class="hint">Selecione uma ou mais imagens e clique em upload.</div>
+      <div class="img-preview-list" id="f-img-list"></div>
+    </div>
+    <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-cyan" onclick="saveProduct()">Salvar</button></div>`;
+  renderTempImgs();openModal();
+}
+function renderTempImgs(){document.getElementById('f-img-list').innerHTML=tempImages.map((u,i)=>`<div class="img-preview"><img src="${u}"><button class="rm" onclick="tempImages.splice(${i},1);renderTempImgs()">✕</button></div>`).join('')}
+
+async function uploadProductImages(){
+  const files=document.getElementById('f-img-file').files;if(!files.length){showToast('Selecione imagens');return}
+  for(const file of files){
+    const ext=file.name.split('.').pop();const path=`products/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const{error}=await sb.storage.from('images').upload(path,file);
+    if(error){showToast('Erro: '+error.message);continue}
+    const{data}=sb.storage.from('images').getPublicUrl(path);
+    tempImages.push(data.publicUrl);
+  }
+  document.getElementById('f-img-file').value='';renderTempImgs();showToast('Upload concluído!')
+}
+
+async function editProduct(id){const p=products.find(p=>p.id===id);if(p)openProductModal(p)}
+async function deleteProduct(id){if(!confirm('Remover este produto?'))return;await sb.from('products').delete().eq('id',id);await loadAll();showToast('Produto removido')}
+async function saveProduct(){
+  const name=document.getElementById('f-name').value.trim(),cat=document.getElementById('f-cat').value;
+  const price=parseFloat(document.getElementById('f-price').value)||0;
+  const desc=document.getElementById('f-desc').value.trim(),badge=document.getElementById('f-badge').value.trim()||null;
+  if(!name){showToast('Preencha o nome');return}
+  const obj={name,category_id:cat,price,description:desc,badge,images:tempImages};
+  if(editId){await sb.from('products').update(obj).eq('id',editId)}
+  else{await sb.from('products').insert(obj)}
+  closeModal();await loadAll();showToast(editId?'Produto atualizado!':'Produto adicionado!')
+}
+
+/* ====== CATEGORIES ====== */
+function renderCategories(){document.getElementById('categories-tbody').innerHTML=categories.map(c=>`<tr><td style="font-family:'IBM Plex Mono';font-size:12px">${c.id}</td><td><strong>${c.label}</strong></td><td><div class="actions">${c.id!=='todos'?`<button class="btn btn-ghost btn-sm" onclick="editCat('${c.id}')">Editar</button><button class="btn btn-red btn-sm" onclick="deleteCat('${c.id}')">✕</button>`:''}</div></td></tr>`).join('')}
+function openCatModal(cat){
+  editId=cat?cat.id:null;document.getElementById('modal-title').textContent=cat?'Editar categoria':'Nova categoria';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="fg"><label>ID (slug)</label><input id="f-catid" value="${cat?cat.id:''}" ${cat?'readonly':''} placeholder="ex: proteina"><div class="hint">Sem espaços, sem acentos</div></div>
+    <div class="fg"><label>Nome</label><input id="f-catlabel" value="${cat?cat.label:''}"></div>
+    <div class="fg"><label>Ordem</label><input type="number" id="f-catord" value="${cat?cat.sort_order||0:categories.length}"></div>
+    <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-cyan" onclick="saveCat()">Salvar</button></div>`;
+  openModal();
+}
+async function editCat(id){const c=categories.find(c=>c.id===id);if(c)openCatModal(c)}
+async function deleteCat(id){if(!confirm('Remover?'))return;await sb.from('categories').delete().eq('id',id);await loadAll();showToast('Removida')}
+async function saveCat(){
+  const id=document.getElementById('f-catid').value.trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+  const label=document.getElementById('f-catlabel').value.trim(),ord=parseInt(document.getElementById('f-catord').value)||0;
+  if(!id||!label){showToast('Preencha tudo');return}
+  if(editId){await sb.from('categories').update({label,sort_order:ord}).eq('id',editId)}
+  else{await sb.from('categories').insert({id,label,sort_order:ord})}
+  closeModal();await loadAll();showToast('Categoria salva!')
+}
+
+/* ====== BANNERS ====== */
+function renderBanners(){document.getElementById('banners-tbody').innerHTML=banners.map(b=>`<tr><td>${b.image_url?`<img class="thumb" src="${b.image_url}" style="width:80px;height:36px;border-radius:4px">`:`<div class="thumb" style="width:80px;height:36px;border-radius:4px"></div>`}</td><td><strong>${b.title||'Banner '+b.id}</strong></td><td><div class="actions"><button class="btn btn-ghost btn-sm" onclick="editBanner(${b.id})">Editar</button><button class="btn btn-red btn-sm" onclick="deleteBanner(${b.id})">✕</button></div></td></tr>`).join('')}
+function openBannerModal(b){
+  editId=b?b.id:null;document.getElementById('modal-title').textContent=b?'Editar banner':'Novo banner';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="fg"><label>Título</label><input id="f-btitle" value="${b?b.title||'':''}"></div>
+    <div class="fg"><label>Imagem</label><input type="file" id="f-bfile" accept="image/*"><div class="hint">Tamanho recomendado: 1600 × 760 px</div>${b&&b.image_url?`<img src="${b.image_url}" style="margin-top:8px;border-radius:6px;max-height:120px">`:''}</div>
+    <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-cyan" onclick="saveBanner()">Salvar</button></div>`;
+  openModal();
+}
+async function editBanner(id){const b=banners.find(b=>b.id===id);if(b)openBannerModal(b)}
+async function deleteBanner(id){if(!confirm('Remover?'))return;await sb.from('banners').delete().eq('id',id);await loadAll();showToast('Removido')}
+async function saveBanner(){
+  const title=document.getElementById('f-btitle').value.trim();
+  const file=document.getElementById('f-bfile').files[0];
+  let image_url=editId?(banners.find(b=>b.id===editId)||{}).image_url:null;
+  if(file){
+    const ext=file.name.split('.').pop();const path=`banners/${Date.now()}.${ext}`;
+    const{error}=await sb.storage.from('images').upload(path,file);
+    if(error){showToast('Erro upload: '+error.message);return}
+    const{data}=sb.storage.from('images').getPublicUrl(path);image_url=data.publicUrl;
+  }
+  if(editId){await sb.from('banners').update({title,image_url}).eq('id',editId)}
+  else{await sb.from('banners').insert({title,image_url,sort_order:banners.length})}
+  closeModal();await loadAll();showToast('Banner salvo!')
+}
+
+/* ====== CONFIG ====== */
+function loadConfigForm(){document.getElementById('cfg-name').value=config.store_name||'';document.getElementById('cfg-wpp').value=config.whatsapp_number||'';document.getElementById('cfg-auto').value=String(config.banner_autoplay!==false);document.getElementById('cfg-int').value=config.banner_interval||5000}
+async function saveConfig(){
+  const obj={store_name:document.getElementById('cfg-name').value.trim()||'Premier Nutri',whatsapp_number:document.getElementById('cfg-wpp').value.trim().replace(/\D/g,'')||'5511999999999',banner_autoplay:document.getElementById('cfg-auto').value==='true',banner_interval:parseInt(document.getElementById('cfg-int').value)||5000};
+  await sb.from('config').update(obj).eq('id',1);config=obj;showToast('Configurações salvas!')
+}
+
+/* ====== UTIL ====== */
+function openModal(){document.getElementById('modal-overlay').classList.add('open')}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');editId=null}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2500)}
+
+checkSession();
+</script>
+</body>
+</html>

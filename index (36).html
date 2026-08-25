@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premier Nutri — Suplementos Delivery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#0B1829;--navy-2:#111F33;--navy-3:#172A42;--navy-card:#13233A;--cyan:#00CFFF;--cyan-dark:#00A8D4;--cyan-glow:rgba(0,207,255,.12);--cyan-10:rgba(0,207,255,.08);--yellow:#FFE234;--white:#F0F4F8;--white-dim:rgba(240,244,248,.6);--white-20:rgba(240,244,248,.12);--border:rgba(255,255,255,.08);--border-hover:rgba(255,255,255,.16);--wpp:#25D366;--shadow-sm:0 2px 6px rgba(0,0,0,.25);--shadow-md:0 6px 24px rgba(0,0,0,.35);--shadow-lg:0 16px 48px rgba(0,0,0,.45);--shadow-cyan:0 4px 20px rgba(0,207,255,.2);--radius:14px;--radius-sm:9px}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{background:var(--navy);color:var(--white);font-family:'Inter',sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif}a{color:inherit;text-decoration:none}img{display:block;max-width:100%}.wrap{max-width:1200px;margin:0 auto;padding:0 24px}@media(max-width:600px){.wrap{padding:0 16px}}
+header{position:sticky;top:0;z-index:60;background:rgba(11,24,41,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}nav{display:flex;align-items:center;justify-content:space-between;height:68px}.brand{display:flex;align-items:center;gap:11px}.logo-img{width:42px;height:42px;border-radius:10px;object-fit:cover;border:1.5px solid var(--white-20)}.brand-text{font-family:'Plus Jakarta Sans';font-weight:800;font-size:17px;color:#fff}.brand-sub{font-size:9.5px;color:var(--cyan);font-weight:600;letter-spacing:.1em;text-transform:uppercase}.nav-links{display:flex;gap:28px;font-size:14px;font-weight:500;color:var(--white-dim)}.nav-links a:hover{color:#fff}@media(max-width:800px){.nav-links{display:none}}
+.cart-btn{display:flex;align-items:center;gap:8px;background:var(--cyan);border:none;color:var(--navy);padding:10px 18px;border-radius:100px;cursor:pointer;font-family:'Inter';font-size:13.5px;font-weight:700;box-shadow:var(--shadow-cyan);transition:all .15s}.cart-btn:hover{background:#fff}.cart-badge{background:var(--yellow);color:var(--navy);font-size:11px;font-family:'IBM Plex Mono';font-weight:700;padding:1px 7px;border-radius:100px;min-width:19px;text-align:center}
+.banner-section{padding:24px 0 8px}.carousel{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--navy-card);box-shadow:var(--shadow-md);border:1px solid var(--border)}.carousel-track{display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1)}.banner-slide{min-width:100%;aspect-ratio:21/10;display:flex;align-items:center;justify-content:center;overflow:hidden}@media(max-width:700px){.banner-slide{aspect-ratio:16/10}}.banner-slide img{width:100%;height:100%;object-fit:cover}.banner-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;background:linear-gradient(135deg,#0B1829,#172A42,#0D3B66);color:rgba(255,255,255,.85)}.banner-ph .bp-title{font-family:'Plus Jakarta Sans';font-weight:800;font-size:clamp(18px,2.6vw,28px);color:#fff}.banner-ph .bp-sub{font-size:12px;font-family:'IBM Plex Mono';color:var(--cyan);opacity:.8}
+.carousel-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;z-index:3;transition:all .15s;backdrop-filter:blur(4px)}.carousel-nav:hover{background:var(--cyan);color:var(--navy);border-color:var(--cyan)}.carousel-nav.prev{left:14px}.carousel-nav.next{right:14px}@media(max-width:600px){.carousel-nav{width:32px;height:32px}.carousel-nav.prev{left:8px}.carousel-nav.next{right:8px}}.carousel-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:3}.dot{width:8px;height:8px;border-radius:50%;cursor:pointer;padding:0;border:none;background:rgba(255,255,255,.3);transition:all .2s}.dot.active{background:var(--cyan);width:22px;border-radius:100px}
+.section-title{font-size:clamp(21px,2.8vw,28px);font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:6px}.section-subtitle{font-size:14px;color:var(--white-dim);margin-bottom:24px}
+.categories-section{padding:44px 0}.categories-row{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none}.categories-row::-webkit-scrollbar{display:none}.cat-chip{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--navy-card);border:1.5px solid var(--border);padding:16px 18px 14px;border-radius:var(--radius);cursor:pointer;min-width:106px;transition:all .16s}.cat-chip:hover{border-color:var(--cyan);transform:translateY(-2px)}.cat-chip.active{border-color:var(--cyan);background:var(--cyan)}.cat-ico{width:46px;height:46px;border-radius:12px;background:var(--cyan-10);display:flex;align-items:center;justify-content:center;transition:all .16s}.cat-ico svg{width:26px;height:26px;color:var(--cyan);transition:color .16s}.cat-chip.active .cat-ico{background:rgba(11,24,41,.25)}.cat-chip.active .cat-ico svg{color:var(--navy)}.cat-label{font-size:12px;font-weight:600;color:var(--white-dim);white-space:nowrap}.cat-chip.active .cat-label{color:var(--navy);font-weight:700}
+.products-section{padding-bottom:52px}.products-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:22px}.products-head .section-title{margin-bottom:0}.see-all{font-size:13.5px;font-weight:600;color:var(--cyan);cursor:pointer}.see-all:hover{text-decoration:underline}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}@media(max-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:440px){.grid{grid-template-columns:1fr}}
+.card{background:var(--navy-card);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:all .18s}.card:hover{border-color:var(--border-hover);box-shadow:var(--shadow-md);transform:translateY(-3px)}.gallery{position:relative;width:100%;aspect-ratio:1/1;background:var(--navy-2);overflow:hidden}.gallery-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1)}.gallery-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center}.gallery-slide img{width:100%;height:100%;object-fit:contain;padding:14px}.gallery-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--white-dim);text-align:center;padding:16px;width:100%;height:100%}.gallery-ph svg{width:38px;height:38px;opacity:.2;color:var(--cyan)}.gallery-ph span{font-family:'IBM Plex Mono';font-size:10.5px;opacity:.5}
+.gal-nav{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;opacity:0;transition:opacity .16s;z-index:2;padding:0}.card:hover .gal-nav{opacity:1}.gal-nav.prev{left:8px}.gal-nav.next{right:8px}@media(hover:none){.gal-nav{opacity:1}}.gal-dots{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}.gal-dot{width:6px;height:6px;border-radius:50%;border:none;padding:0;cursor:pointer;background:rgba(255,255,255,.2);transition:all .18s}.gal-dot.active{background:var(--cyan);width:16px;border-radius:100px}.badge-tag{position:absolute;top:10px;left:10px;z-index:2;background:var(--yellow);color:var(--navy);font-size:10px;font-weight:800;padding:4px 10px;border-radius:100px;text-transform:uppercase}
+.card-body{padding:14px 14px 16px;display:flex;flex-direction:column;flex:1}.card-cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan);margin-bottom:6px}.card h3{font-size:14px;font-weight:700;line-height:1.3;margin-bottom:4px;color:#fff}.card .desc{font-size:12.5px;color:var(--white-dim);margin-bottom:14px;flex:1}.price-from{font-size:10.5px;color:var(--white-dim);opacity:.6}.price-main{font-family:'Plus Jakarta Sans';font-size:22px;font-weight:800;color:var(--yellow);margin-bottom:12px}.btn-add-card{width:100%;background:var(--cyan);border:none;color:var(--navy);padding:11px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter';transition:all .14s;box-shadow:var(--shadow-cyan)}.btn-add-card:hover{background:#fff}
+.trust-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:30px 0 52px;border-top:1px solid var(--border)}@media(max-width:700px){.trust-bar{grid-template-columns:repeat(2,1fr)}}.trust-item{display:flex;align-items:center;gap:11px}.trust-ico{width:40px;height:40px;background:var(--cyan-10);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}.trust-ico svg{width:20px;height:20px;color:var(--cyan)}.trust-item .t-label{font-size:12.5px;font-weight:600;color:var(--white-dim);line-height:1.35}
+.how-section{padding:52px 0 60px;background:var(--navy-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.steps-list{list-style:none;max-width:600px}.step-item{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)}.step-item:last-child{border-bottom:none}.step-num{width:34px;height:34px;border-radius:50%;background:var(--cyan);color:var(--navy);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans';font-weight:800;font-size:13.5px}.step-item h4{font-size:15px;font-weight:700;margin-bottom:2px;color:#fff}.step-item p{font-size:13.5px;color:var(--white-dim)}
+footer{padding:34px 0}.foot-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}.foot-row p{font-size:11.5px;color:rgba(255,255,255,.3);font-family:'IBM Plex Mono'}
+.overlay{position:fixed;inset:0;background:rgba(5,12,22,.65);opacity:0;pointer-events:none;transition:opacity .2s;z-index:90}.overlay.open{opacity:1;pointer-events:auto}.drawer{position:fixed;top:0;right:0;height:100%;width:420px;max-width:94vw;background:var(--navy-2);transform:translateX(100%);transition:transform .26s cubic-bezier(.4,0,.2,1);z-index:95;display:flex;flex-direction:column;box-shadow:-12px 0 48px rgba(0,0,0,.5);border-left:1px solid var(--border)}.drawer.open{transform:translateX(0)}.drawer-head{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.drawer-head h3{font-size:18px;font-weight:800;color:#fff}.drawer-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--white-dim)}.drawer-body{flex:1;overflow-y:auto;padding:10px 22px}.empty-cart{text-align:center;padding:70px 10px;color:rgba(255,255,255,.25);font-size:13.5px}.cart-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:10px}.ci-name{font-size:13.5px;font-weight:600;color:#fff;margin-bottom:2px}.ci-price{font-family:'IBM Plex Mono';font-size:11.5px;color:var(--white-dim)}.qty-ctrl{display:flex;align-items:center;gap:6px}.qty-ctrl button{width:28px;height:28px;border:1px solid var(--border);background:var(--navy);border-radius:7px;cursor:pointer;font-size:14px;color:var(--cyan)}.qty-ctrl button:hover{background:var(--navy-3);border-color:var(--cyan)}.qty-ctrl span{min-width:16px;text-align:center;font-size:13.5px;font-weight:600;font-family:'IBM Plex Mono';color:#fff}.ci-remove{background:none;border:none;color:#E8625A;font-size:12px;cursor:pointer;margin-left:4px}
+.drawer-foot{padding:18px 22px 24px;border-top:1px solid var(--border)}.total-row{display:flex;justify-content:space-between;font-size:16px;font-weight:800;margin-bottom:14px;font-family:'Plus Jakarta Sans';color:var(--yellow)}.checkout-btn{width:100%;background:var(--wpp);color:#fff;border:none;padding:15px;border-radius:var(--radius-sm);font-size:14.5px;font-weight:700;cursor:pointer;font-family:'Inter';display:flex;align-items:center;justify-content:center;gap:10px;transition:all .14s;box-shadow:0 4px 16px rgba(37,211,102,.25)}.checkout-btn:hover{background:#2EE675}.checkout-btn:disabled{opacity:.3;cursor:not-allowed}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--cyan);color:var(--navy);padding:12px 22px;border-radius:100px;font-size:13.5px;font-weight:700;box-shadow:var(--shadow-cyan);opacity:0;transition:all .25s cubic-bezier(.4,0,.2,1);z-index:100;pointer-events:none;white-space:nowrap}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.loading{text-align:center;padding:80px 20px;color:var(--white-dim);font-size:14px}
+</style>
+</head>
+<body>
+<header><div class="wrap"><nav>
+  <div class="brand">
+    <img class="logo-img" src="img/logo.jpg" alt="Premier Nutri" onerror="this.style.display='none'">
+    <div><div class="brand-text" id="site-name">Premier Nutri</div><div class="brand-sub">Suplementos · Delivery</div></div>
+  </div>
+  <div class="nav-links"><a href="#categorias">Categorias</a><a href="#produtos">Produtos</a><a href="#como-funciona">Como funciona</a></div>
+  <button class="cart-btn" onclick="openCart()">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+    Carrinho <span class="cart-badge" id="cart-count">0</span>
+  </button>
+</nav></div></header>
+
+<section class="banner-section"><div class="wrap"><div class="carousel">
+  <div class="carousel-track" id="carousel-track"></div>
+  <button class="carousel-nav prev" onclick="moveBanner(-1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+  <button class="carousel-nav next" onclick="moveBanner(1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+  <div class="carousel-dots" id="carousel-dots"></div>
+</div></div></section>
+
+<section class="categories-section" id="categorias"><div class="wrap">
+  <div class="section-title">Categorias</div>
+  <div class="section-subtitle">Encontre o que precisa rapidamente</div>
+  <div class="categories-row" id="categories-row"></div>
+</div></section>
+
+<section class="products-section" id="produtos"><div class="wrap">
+  <div class="products-head"><div class="section-title">Produtos em destaque</div><span class="see-all" id="see-all" onclick="showAll()">Ver todos</span></div>
+  <div class="grid" id="product-grid"><div class="loading">Carregando produtos...</div></div>
+</div></section>
+
+<section><div class="wrap"><div class="trust-bar">
+  <div class="trust-item"><div class="trust-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div class="t-label">Entrega rápida<br>para toda a cidade</div></div>
+  <div class="trust-item"><div class="trust-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div class="t-label">Parcele em até 3x<br>sem juros</div></div>
+  <div class="trust-item"><div class="trust-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div><div class="t-label">Atendimento<br>via WhatsApp</div></div>
+  <div class="trust-item"><div class="trust-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="t-label">Produtos<br>100% originais</div></div>
+</div></div></section>
+
+<section class="how-section" id="como-funciona"><div class="wrap">
+  <div class="section-title" style="margin-bottom:4px">Como funciona</div>
+  <div class="section-subtitle" style="margin-bottom:20px">Simples como mandar uma mensagem</div>
+  <ol class="steps-list">
+    <li class="step-item"><div class="step-num">1</div><div><h4>Escolha seus produtos</h4><p>Navegue pelo catálogo e adicione ao carrinho.</p></div></li>
+    <li class="step-item"><div class="step-num">2</div><div><h4>Revise seu pedido</h4><p>Confira os itens, quantidades e valores.</p></div></li>
+    <li class="step-item"><div class="step-num">3</div><div><h4>Abra o WhatsApp</h4><p>Uma mensagem com seu pedido é gerada automaticamente.</p></div></li>
+    <li class="step-item"><div class="step-num">4</div><div><h4>Envie seu pedido</h4><p>É só enviar e aguardar nosso atendimento.</p></div></li>
+    <li class="step-item"><div class="step-num">5</div><div><h4>Receba em casa</h4><p>Entregamos rapidinho para você.</p></div></li>
+  </ol>
+</div></section>
+
+<footer><div class="wrap foot-row"><p>PREMIER NUTRI · ATENDIMENTO VIA WHATSAPP</p><p>SEG–SÁB · 9H ÀS 19H</p></div></footer>
+
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head"><h3>Seu carrinho</h3><button class="drawer-close" onclick="closeCart()">✕</button></div>
+  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-foot">
+    <div class="total-row"><span>Total</span><span id="drawer-total">R$ 0,00</span></div>
+    <button class="checkout-btn" id="checkout-btn" onclick="checkoutCart()" disabled>
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.612.616l4.522-1.478A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.07 0-4.046-.564-5.754-1.595l-.27-.16-2.818.921.946-2.773-.176-.278A9.953 9.953 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+      Enviar pedido via WhatsApp
+    </button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://ileyrleweonplnpfuncj.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsZXlybGV3ZW9ucGxucGZ1bmNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2NzYxMjEsImV4cCI6MjEwMzI1MjEyMX0.vrUQ4FaMyNhJKlU2igp39ZlHFVfG0oT22wkyVFfpDy4';
+const sb=window.supabase.createClient(SB_URL,SB_KEY);
+
+const ICONS={todos:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`,proteina:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M9 2h6v3H9z"/><path d="M6 8a3 3 0 013-3h6a3 3 0 013 3v11a3 3 0 01-3 3H9a3 3 0 01-3-3V8z"/><line x1="6" y1="12" x2="18" y2="12"/></svg>`,creatina:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><polygon points="13 2 4 14 11 14 10 22 20 9 13 9 13 2"/></svg>`,pretreino:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 22c4.4 0 7-3 7-7 0-4-3-6-3-9 0 0-2 1.5-2.5 4C12 8 12 5 9 2c0 4-2 5.5-3 8-.7 1.7-1 3.2-1 5 0 4 2.6 7 7 7z"/></svg>`,vitaminas:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M10.5 20.5a5 5 0 01-7-7l7-7a5 5 0 017 7l-7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg>`,termogenico:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/></svg>`,acessorios:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M6 2L3 7v13a2 2 0 002 2h14a2 2 0 002-2V7l-3-5H6z"/><line x1="3" y1="7" x2="21" y2="7"/><path d="M16 11a4 4 0 01-8 0"/></svg>`};
+
+const money=v=>parseFloat(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+let CONFIG={},CATEGORIES=[],BANNERS=[],PRODUCTS=[];
+let activeFilter='todos',cart={},galleryIndex={};
+const catLabel=id=>(CATEGORIES.find(c=>c.id===id)||{}).label||id;
+
+async function init(){
+  const [{data:cfg},{data:cats},{data:bans},{data:prods}]=await Promise.all([
+    sb.from('config').select('*').single(),
+    sb.from('categories').select('*').order('sort_order'),
+    sb.from('banners').select('*').eq('active',true).order('sort_order'),
+    sb.from('products').select('*').eq('active',true).order('created_at',{ascending:false})
+  ]);
+  CONFIG=cfg||{store_name:'Premier Nutri',whatsapp_number:'5511999999999',banner_autoplay:true,banner_interval:5000};
+  CATEGORIES=cats||[];BANNERS=bans||[];PRODUCTS=prods||[];
+  document.getElementById('site-name').textContent=CONFIG.store_name||'Premier Nutri';
+  renderBanners();restartAP();renderCategories();renderProducts();updateCartUI();
+  document.getElementById('see-all').style.display='none';
+}
+
+let bannerIndex=0,bannerTimer=null;
+function renderBanners(){
+  if(!BANNERS.length){BANNERS=[{id:0,title:'Bem-vindo à Premier Nutri',image_url:null}]}
+  document.getElementById('carousel-track').innerHTML=BANNERS.map(b=>`<div class="banner-slide">${b.image_url?`<img src="${b.image_url}" alt="${b.title||''}">`:`<div class="banner-ph"><div class="bp-title">${b.title||'Premier Nutri'}</div><div class="bp-sub">Suplementos Delivery</div></div>`}</div>`).join('');
+  document.getElementById('carousel-dots').innerHTML=BANNERS.map((_,i)=>`<button class="dot ${i===0?'active':''}" onclick="goBanner(${i})"></button>`).join('');
+  updateBanner();
+}
+function updateBanner(){document.getElementById('carousel-track').style.transform=`translateX(-${bannerIndex*100}%)`;document.querySelectorAll('#carousel-dots .dot').forEach((d,i)=>d.classList.toggle('active',i===bannerIndex))}
+function moveBanner(d){bannerIndex=(bannerIndex+d+BANNERS.length)%BANNERS.length;updateBanner();restartAP()}
+function goBanner(i){bannerIndex=i;updateBanner();restartAP()}
+function restartAP(){if(!CONFIG.banner_autoplay)return;clearInterval(bannerTimer);bannerTimer=setInterval(()=>{bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()},CONFIG.banner_interval||5000)}
+
+function renderCategories(){document.getElementById('categories-row').innerHTML=CATEGORIES.map(c=>`<div class="cat-chip ${c.id===activeFilter?'active':''}" onclick="setFilter('${c.id}')"><div class="cat-ico">${ICONS[c.id]||ICONS.todos}</div><div class="cat-label">${c.label}</div></div>`).join('')}
+function setFilter(id){activeFilter=id;renderCategories();renderProducts();document.getElementById('see-all').style.display=id==='todos'?'none':'inline'}
+function showAll(){setFilter('todos')}
+
+function renderProducts(){
+  const list=activeFilter==='todos'?PRODUCTS:PRODUCTS.filter(p=>p.category_id===activeFilter);
+  if(!list.length){document.getElementById('product-grid').innerHTML='<div class="loading">Nenhum produto encontrado</div>';return}
+  document.getElementById('product-grid').innerHTML=list.map(p=>{
+    const imgs=p.images||[];const multi=imgs.length>1;
+    if(galleryIndex[p.id]===undefined)galleryIndex[p.id]=0;
+    const slides=imgs.length?imgs.map(src=>`<div class="gallery-slide"><img src="${src}" alt="${p.name}" loading="lazy"></div>`).join(''):`<div class="gallery-slide"><div class="gallery-ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>foto do produto</span></div></div>`;
+    return`<div class="card"><div class="gallery">${p.badge?`<span class="badge-tag">${p.badge}</span>`:''}<div class="gallery-track" id="galtrack-${p.id}">${slides}</div>${multi?`<button class="gal-nav prev" onclick="moveGal(${p.id},-1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"/></svg></button><button class="gal-nav next" onclick="moveGal(${p.id},1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"/></svg></button><div class="gal-dots" id="galdots-${p.id}">${imgs.map((_,i)=>`<button class="gal-dot ${i===galleryIndex[p.id]?'active':''}" onclick="goGal(${p.id},${i})"></button>`).join('')}</div>`:''}</div><div class="card-body"><div class="card-cat">${catLabel(p.category_id)}</div><h3>${p.name}</h3><div class="desc">${p.description||''}</div><div class="price-from">A partir de</div><div class="price-main">${money(p.price)}</div><button class="btn-add-card" onclick="addToCart(${p.id})">Adicionar</button></div></div>`}).join('');
+  list.forEach(p=>updateGal(p.id));
+}
+function moveGal(id,d){const n=(PRODUCTS.find(p=>p.id===id).images||[]).length;if(n<2)return;galleryIndex[id]=(galleryIndex[id]+d+n)%n;updateGal(id)}
+function goGal(id,i){galleryIndex[id]=i;updateGal(id)}
+function updateGal(id){const t=document.getElementById('galtrack-'+id);if(!t)return;t.style.transform=`translateX(-${(galleryIndex[id]||0)*100}%)`;const d=document.getElementById('galdots-'+id);if(d)d.querySelectorAll('.gal-dot').forEach((b,i)=>b.classList.toggle('active',i===galleryIndex[id]))}
+
+function addToCart(id){cart[id]=(cart[id]||0)+1;updateCartUI();showToast('Produto adicionado ao carrinho')}
+function changeQty(id,d){if(!cart[id])return;cart[id]+=d;if(cart[id]<=0)delete cart[id];updateCartUI()}
+function removeItem(id){delete cart[id];updateCartUI()}
+const cartTotal=()=>Object.entries(cart).reduce((s,[id,q])=>{const p=PRODUCTS.find(p=>p.id==id);return s+(p?p.price*q:0)},0);
+const cartCount=()=>Object.values(cart).reduce((a,b)=>a+b,0);
+function updateCartUI(){
+  document.getElementById('cart-count').textContent=cartCount();
+  const body=document.getElementById('drawer-body'),ids=Object.keys(cart);
+  if(!ids.length){body.innerHTML='<div class="empty-cart">Seu carrinho está vazio.</div>'}
+  else{body.innerHTML=ids.map(id=>{const p=PRODUCTS.find(p=>p.id==id),q=cart[id];return`<div class="cart-item"><div><div class="ci-name">${p.name}</div><div class="ci-price">${money(p.price)} × ${q} = ${money(p.price*q)}</div></div><div class="qty-ctrl"><button onclick="changeQty(${id},-1)">−</button><span>${q}</span><button onclick="changeQty(${id},1)">+</button><button class="ci-remove" onclick="removeItem(${id})">✕</button></div></div>`}).join('')}
+  document.getElementById('drawer-total').textContent=money(cartTotal());
+  document.getElementById('checkout-btn').disabled=!ids.length;
+}
+
+function buildMsg(items){let o=`Olá! 👋\n\nGostaria de fazer o seguinte pedido:\n-----------------------------\n`,t=0;items.forEach(it=>{const s=it.qty*it.price;t+=s;o+=`\n${it.qty}x ${it.name}\n${money(s)}\n`});o+=`\n-----------------------------\nTotal: ${money(t)}\n\nMeu nome:\nMeu endereço:\nForma de pagamento:\n\nObrigado! 🙏`;return o}
+function checkoutCart(){const items=Object.entries(cart).map(([id,qty])=>{const p=PRODUCTS.find(p=>p.id==id);return{name:p.name,qty,price:p.price}});if(!items.length)return;window.open(`https://wa.me/${CONFIG.whatsapp_number}?text=${encodeURIComponent(buildMsg(items))}`,'_blank')}
+
+function openCart(){document.getElementById('drawer').classList.add('open');document.getElementById('overlay').classList.add('open')}
+function closeCart(){document.getElementById('drawer').classList.remove('open');document.getElementById('overlay').classList.remove('open')}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCart()});
+
+init();
+</script>
+</body>
+</html>
