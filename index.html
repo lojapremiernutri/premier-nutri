@@ -18,7 +18,7 @@ header{position:sticky;top:0;z-index:60;background:rgba(11,24,41,.92);backdrop-f
 .categories-section{padding:44px 0}.categories-row{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none}.categories-row::-webkit-scrollbar{display:none}.cat-chip{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--navy-card);border:1.5px solid var(--border);padding:16px 18px 14px;border-radius:var(--radius);cursor:pointer;min-width:106px;transition:all .16s}.cat-chip:hover{border-color:var(--cyan);transform:translateY(-2px)}.cat-chip.active{border-color:var(--cyan);background:var(--cyan)}.cat-ico{width:46px;height:46px;border-radius:12px;background:var(--cyan-10);display:flex;align-items:center;justify-content:center;transition:all .16s}.cat-ico svg{width:26px;height:26px;color:var(--cyan);transition:color .16s}.cat-chip.active .cat-ico{background:rgba(11,24,41,.25)}.cat-chip.active .cat-ico svg{color:var(--navy)}.cat-label{font-size:12px;font-weight:600;color:var(--white-dim);white-space:nowrap}.cat-chip.active .cat-label{color:var(--navy);font-weight:700}
 .products-section{padding-bottom:52px}.products-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:22px}.products-head .section-title{margin-bottom:0}.see-all{font-size:13.5px;font-weight:600;color:var(--cyan);cursor:pointer}.see-all:hover{text-decoration:underline}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}@media(max-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:440px){.grid{grid-template-columns:1fr}}
 .card{background:var(--navy-card);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:all .18s}.card:hover{border-color:var(--border-hover);box-shadow:var(--shadow-md);transform:translateY(-3px)}.gallery{position:relative;width:100%;aspect-ratio:1/1;background:var(--navy-2);overflow:hidden}.gallery-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1)}.gallery-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center}.gallery-slide img{width:100%;height:100%;object-fit:contain;padding:14px}.gallery-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--white-dim);text-align:center;padding:16px;width:100%;height:100%}.gallery-ph svg{width:38px;height:38px;opacity:.2;color:var(--cyan)}.gallery-ph span{font-family:'IBM Plex Mono';font-size:10.5px;opacity:.5}
-.gal-nav{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;opacity:0;transition:opacity .16s;z-index:2;padding:0}.card:hover .gal-nav{opacity:1}.gal-nav.prev{left:8px}.gal-nav.next{right:8px}@media(hover:none){.gal-nav{display:none}}.gallery-track{touch-action:pan-y}.gal-dots{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}.gal-dot{width:6px;height:6px;border-radius:50%;border:none;padding:0;cursor:pointer;background:rgba(255,255,255,.2);transition:all .18s}.gal-dot.active{background:var(--cyan);width:16px;border-radius:100px}.badge-tag{position:absolute;top:10px;left:10px;z-index:2;background:var(--yellow);color:var(--navy);font-size:10px;font-weight:800;padding:4px 10px;border-radius:100px;text-transform:uppercase}
+.gal-nav{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.6);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;z-index:3;padding:0;transition:background .15s ease}.gal-nav:hover{background:var(--cyan);color:var(--navy);border-color:var(--cyan)}.gal-nav.prev{left:8px}.gal-nav.next{right:8px}.gallery-track{touch-action:pan-y}.gal-dots{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}.gal-dot{width:6px;height:6px;border-radius:50%;border:none;padding:0;cursor:pointer;background:rgba(255,255,255,.2);transition:all .18s}.gal-dot.active{background:var(--cyan);width:16px;border-radius:100px}.badge-tag{position:absolute;top:10px;left:10px;z-index:2;background:var(--yellow);color:var(--navy);font-size:10px;font-weight:800;padding:4px 10px;border-radius:100px;text-transform:uppercase}
 .card-body{padding:14px 14px 16px;display:flex;flex-direction:column;flex:1}.card-cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan);margin-bottom:6px}.card h3{font-size:14px;font-weight:700;line-height:1.3;margin-bottom:4px;color:#fff}.card .desc{font-size:12.5px;color:var(--white-dim);margin-bottom:10px;flex:1}
 .flavors-wrap{margin-bottom:12px}
 .flavors-label{font-size:10px;font-weight:700;color:var(--white-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
@@ -195,36 +195,21 @@ function attachSwipe(){
   document.querySelectorAll('.gallery-track').forEach(track=>{
     if(track._swipe)return;track._swipe=true;
     const id=parseInt(track.id.replace('galtrack-',''));
-    let startX=0,curX=0,dragging=false,w=0,moved=false,pointerId=null;
-    const getN=()=>(PRODUCTS.find(p=>p.id===id).images||[]).length;
-    const reset=()=>{dragging=false;pointerId=null;moved=false;track.style.transition='';updateGal(id)};
-    track.addEventListener('pointerdown',e=>{
-      if(getN()<2)return;
-      pointerId=e.pointerId;dragging=true;moved=false;
-      startX=curX=e.clientX;w=track.offsetWidth;
-      track.style.transition='none';
-      try{track.setPointerCapture(e.pointerId)}catch(_){}
-    });
-    track.addEventListener('pointermove',e=>{
-      if(!dragging||e.pointerId!==pointerId)return;
-      curX=e.clientX;
-      const diff=curX-startX;
-      if(Math.abs(diff)>4)moved=true;
-      track.style.transform=`translateX(calc(${-(galleryIndex[id]||0)*100}% + ${diff}px))`;
-    });
-    const finish=e=>{
-      if(!dragging||(e&&e.pointerId!==pointerId))return;
-      const diff=curX-startX,n=getN();
-      if(moved&&Math.abs(diff)>w*0.15){
-        if(diff<0)galleryIndex[id]=(galleryIndex[id]+1)%n;
-        else galleryIndex[id]=(galleryIndex[id]-1+n)%n;
+    let startX=0,startY=0;
+    track.addEventListener('touchstart',e=>{
+      if((PRODUCTS.find(p=>p.id===id).images||[]).length<2)return;
+      startX=e.touches[0].clientX;startY=e.touches[0].clientY;
+    },{passive:true});
+    track.addEventListener('touchend',e=>{
+      if(startX===0)return;
+      const endX=e.changedTouches[0].clientX,endY=e.changedTouches[0].clientY;
+      const dx=endX-startX,dy=endY-startY;
+      startX=0;
+      // só considera swipe se o movimento horizontal for maior que vertical (evita conflito com scroll da página)
+      if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){
+        moveGal(id,dx<0?1:-1);
       }
-      try{track.releasePointerCapture(pointerId)}catch(_){}
-      reset();
-    };
-    track.addEventListener('pointerup',finish);
-    track.addEventListener('pointercancel',finish);
-    track.addEventListener('pointerleave',e=>{if(dragging&&e.pointerId===pointerId)finish(e)});
+    },{passive:true});
   });
 }
 
