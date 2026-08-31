@@ -50,6 +50,18 @@
 .tbl .thumb{width:40px;height:40px;border-radius:6px;object-fit:cover;background:var(--navy-3)}
 .tbl .actions{display:flex;gap:6px}
 .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;background:var(--yellow);color:var(--navy)}
+.status-active,.status-paused{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:.03em}
+.status-active{background:rgba(0,207,255,.12);color:var(--cyan)}
+.status-paused{background:rgba(232,98,90,.12);color:var(--red)}
+.flavor-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--navy);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.flavor-row input{flex:1;background:transparent;border:none;color:#fff;font-size:13px;font-family:'Inter';outline:none;padding:2px 0}
+.flavor-row .fx-toggle{background:transparent;border:1px solid var(--border);color:var(--white-dim);padding:4px 10px;border-radius:100px;font-size:10.5px;font-weight:700;cursor:pointer;font-family:'Inter';text-transform:uppercase;letter-spacing:.03em}
+.flavor-row .fx-toggle.active{background:var(--cyan-10);color:var(--cyan);border-color:var(--cyan)}
+.flavor-row .fx-toggle.paused{background:rgba(232,98,90,.1);color:var(--red);border-color:var(--red)}
+.flavor-row .fx-rm{background:none;border:none;color:var(--red);cursor:pointer;font-size:14px;padding:2px 6px}
+.flavor-add{display:flex;gap:6px;margin-top:8px}
+.flavor-add input{flex:1;background:var(--navy);border:1.5px solid var(--border);color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;font-family:'Inter';outline:none}
+.flavor-add input:focus{border-color:var(--cyan)}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(5,12,22,.7);z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
 .modal-overlay.open{opacity:1;pointer-events:auto}
@@ -120,7 +132,7 @@
     </div>
     <div class="panel" id="panel-products">
       <div class="panel-header"><h2>Produtos</h2><button class="btn btn-cyan btn-sm" onclick="openProductModal()">+ Novo produto</button></div>
-      <table class="tbl"><thead><tr><th></th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Selo</th><th>Imgs</th><th></th></tr></thead><tbody id="products-tbody"></tbody></table>
+      <table class="tbl"><thead><tr><th></th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Status</th><th>Imgs</th><th></th></tr></thead><tbody id="products-tbody"></tbody></table>
     </div>
     <div class="panel" id="panel-categories">
       <div class="panel-header"><h2>Categorias</h2><button class="btn btn-cyan btn-sm" onclick="openCatModal()">+ Nova categoria</button></div>
@@ -159,8 +171,8 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const sb=window.supabase.createClient(SB_URL,SB_KEY);
 
 const money=v=>parseFloat(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-let config={},categories=[],banners=[],products=[];
-let editId=null,isSignup=false,tempImages=[];
+let config={},categories=[],banners=[],products=[],flavors=[];
+let editId=null,isSignup=false,tempImages=[],tempActive=true,tempFlavors=[];
 
 /* ====== AUTH ====== */
 function toggleMode(){isSignup=!isSignup;document.getElementById('login-title').textContent=isSignup?'Criar conta de administrador':'Entrar no painel administrativo';document.getElementById('auth-btn').textContent=isSignup?'Criar conta':'Entrar';document.getElementById('login-toggle').textContent=isSignup?'Já tem conta? Entrar':'Primeiro acesso? Criar conta';document.getElementById('login-err').textContent=''}
@@ -184,13 +196,14 @@ async function showApp(){
   await loadAll();
 }
 async function loadAll(){
-  const[{data:cfg},{data:cats},{data:bans},{data:prods}]=await Promise.all([
+  const[{data:cfg},{data:cats},{data:bans},{data:prods},{data:flavs}]=await Promise.all([
     sb.from('config').select('*').single(),
     sb.from('categories').select('*').order('sort_order'),
     sb.from('banners').select('*').order('sort_order'),
-    sb.from('products').select('*').order('created_at',{ascending:false})
+    sb.from('products').select('*').order('created_at',{ascending:false}),
+    sb.from('product_flavors').select('*').order('sort_order')
   ]);
-  config=cfg||{};categories=cats||[];banners=bans||[];products=prods||[];
+  config=cfg||{};categories=cats||[];banners=bans||[];products=prods||[];flavors=flavs||[];
   renderDashboard();renderProducts();renderCategories();renderBanners();loadConfigForm();
 }
 
@@ -206,14 +219,24 @@ function renderProducts(){
   if(!products.length){tb.innerHTML='<tr><td colspan="7" class="empty-state">Nenhum produto</td></tr>';return}
   tb.innerHTML=products.map(p=>{
     const img=(p.images||[])[0];const catName=(categories.find(c=>c.id===p.category_id)||{}).label||p.category_id;
-    return`<tr><td>${img?`<img class="thumb" src="${img}">`:`<div class="thumb"></div>`}</td><td><strong>${p.name}</strong><br><span style="font-size:11px;color:var(--white-dim)">${(p.description||'').slice(0,50)}</span></td><td>${catName}</td><td style="font-family:'IBM Plex Mono';font-weight:600">${money(p.price)}</td><td>${p.badge?`<span class="badge">${p.badge}</span>`:'-'}</td><td>${(p.images||[]).length}</td><td><div class="actions"><button class="btn btn-ghost btn-sm" onclick="editProduct(${p.id})">Editar</button><button class="btn btn-red btn-sm" onclick="deleteProduct(${p.id})">✕</button></div></td></tr>`}).join('');
+    const nFlavors=flavors.filter(f=>f.product_id===p.id).length;
+    const statusBadge=p.active===false?`<span class="status-paused">Pausado</span>`:`<span class="status-active">Ativo</span>`;
+    const toggleBtn=p.active===false?`<button class="btn btn-ghost btn-sm" onclick="toggleProduct(${p.id},true)" title="Ativar">▶</button>`:`<button class="btn btn-ghost btn-sm" onclick="toggleProduct(${p.id},false)" title="Pausar">⏸</button>`;
+    return`<tr style="${p.active===false?'opacity:.55':''}"><td>${img?`<img class="thumb" src="${img}">`:`<div class="thumb"></div>`}</td><td><strong>${p.name}</strong><br><span style="font-size:11px;color:var(--white-dim)">${(p.description||'').slice(0,50)}</span>${nFlavors?`<br><span style="font-size:10.5px;color:var(--cyan)">${nFlavors} sabor${nFlavors>1?'es':''}</span>`:''}</td><td>${catName}</td><td style="font-family:'IBM Plex Mono';font-weight:600">${money(p.price)}</td><td>${statusBadge}</td><td>${(p.images||[]).length}</td><td><div class="actions">${toggleBtn}<button class="btn btn-ghost btn-sm" onclick="editProduct(${p.id})">Editar</button><button class="btn btn-red btn-sm" onclick="deleteProduct(${p.id})">✕</button></div></td></tr>`}).join('');
 }
+async function toggleProduct(id,active){await sb.from('products').update({active}).eq('id',id);await loadAll();showToast(active?'Anúncio ativado':'Anúncio pausado')}
 
 function openProductModal(prod){
   editId=prod?prod.id:null;tempImages=prod?(prod.images||[]).slice():[];
+  tempActive=prod?prod.active!==false:true;
+  tempFlavors=prod?flavors.filter(f=>f.product_id===prod.id).map(f=>({...f,_new:false,_del:false})):[];
   document.getElementById('modal-title').textContent=prod?'Editar produto':'Novo produto';
   const cats=categories.filter(c=>c.id!=='todos');
   document.getElementById('modal-body').innerHTML=`
+    <div class="fg" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--navy);border:1.5px solid var(--border);border-radius:9px;margin-bottom:16px">
+      <div><label style="margin:0">Status do anúncio</label><div class="hint" style="margin-top:2px">Pausado não aparece no site</div></div>
+      <button type="button" id="f-active-btn" class="btn btn-sm ${tempActive?'btn-cyan':'btn-ghost'}" onclick="toggleTempActive()">${tempActive?'Ativo':'Pausado'}</button>
+    </div>
     <div class="fg"><label>Nome</label><input id="f-name" value="${prod?prod.name:''}"></div>
     <div class="form-row">
       <div class="fg"><label>Categoria</label><select id="f-cat">${cats.map(c=>`<option value="${c.id}" ${prod&&prod.category_id===c.id?'selected':''}>${c.label}</option>`).join('')}</select></div>
@@ -221,6 +244,11 @@ function openProductModal(prod){
     </div>
     <div class="fg"><label>Descrição</label><textarea id="f-desc">${prod?prod.description||'':''}</textarea></div>
     <div class="fg"><label>Selo (opcional)</label><input id="f-badge" value="${prod&&prod.badge?prod.badge:''}" placeholder="Ex: Novo, -15%, Mais vendido"></div>
+    <div class="fg"><label>Sabores disponíveis</label>
+      <div id="f-flavors-list"></div>
+      <div class="flavor-add"><input id="f-new-flavor" placeholder="Ex: Chocolate, Baunilha..." onkeydown="if(event.key==='Enter'){event.preventDefault();addTempFlavor()}"><button class="btn btn-ghost btn-sm" onclick="addTempFlavor()" type="button">+ Adicionar</button></div>
+      <div class="hint">Todos os sabores têm o mesmo preço do produto. Deixe vazio se não houver variação.</div>
+    </div>
     <div class="fg"><label>Imagens do produto</label>
       <input type="file" id="f-img-file" accept="image/*" multiple style="margin-bottom:8px">
       <button class="btn btn-ghost btn-sm" onclick="uploadProductImages()" type="button">⬆ Fazer upload</button>
@@ -228,7 +256,17 @@ function openProductModal(prod){
       <div class="img-preview-list" id="f-img-list"></div>
     </div>
     <div class="form-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-cyan" onclick="saveProduct()">Salvar</button></div>`;
-  renderTempImgs();openModal();
+  renderTempImgs();renderTempFlavors();openModal();
+}
+function toggleTempActive(){tempActive=!tempActive;const btn=document.getElementById('f-active-btn');btn.textContent=tempActive?'Ativo':'Pausado';btn.className='btn btn-sm '+(tempActive?'btn-cyan':'btn-ghost')}
+function addTempFlavor(){const inp=document.getElementById('f-new-flavor');const name=inp.value.trim();if(!name)return;tempFlavors.push({id:'new_'+Date.now(),name,active:true,_new:true,_del:false});inp.value='';renderTempFlavors()}
+function toggleTempFlavor(i){tempFlavors[i].active=!tempFlavors[i].active;renderTempFlavors()}
+function removeTempFlavor(i){const f=tempFlavors[i];if(f._new)tempFlavors.splice(i,1);else f._del=true;renderTempFlavors()}
+function updateTempFlavorName(i,name){tempFlavors[i].name=name}
+function renderTempFlavors(){
+  const el=document.getElementById('f-flavors-list');const visible=tempFlavors.filter(f=>!f._del);
+  if(!visible.length){el.innerHTML='<div class="hint" style="margin-bottom:6px">Nenhum sabor cadastrado.</div>';return}
+  el.innerHTML=visible.map((f)=>{const realIdx=tempFlavors.indexOf(f);return`<div class="flavor-row"><input value="${f.name.replace(/"/g,'&quot;')}" onchange="updateTempFlavorName(${realIdx},this.value)"><button class="fx-toggle ${f.active?'active':'paused'}" onclick="toggleTempFlavor(${realIdx})">${f.active?'Ativo':'Pausado'}</button><button class="fx-rm" onclick="removeTempFlavor(${realIdx})" title="Remover">✕</button></div>`}).join('');
 }
 function renderTempImgs(){document.getElementById('f-img-list').innerHTML=tempImages.map((u,i)=>`<div class="img-preview"><img src="${u}"><button class="rm" onclick="tempImages.splice(${i},1);renderTempImgs()">✕</button></div>`).join('')}
 
@@ -251,9 +289,18 @@ async function saveProduct(){
   const price=parseFloat(document.getElementById('f-price').value)||0;
   const desc=document.getElementById('f-desc').value.trim(),badge=document.getElementById('f-badge').value.trim()||null;
   if(!name){showToast('Preencha o nome');return}
-  const obj={name,category_id:cat,price,description:desc,badge,images:tempImages};
+  const obj={name,category_id:cat,price,description:desc,badge,images:tempImages,active:tempActive};
+  let productId=editId;
   if(editId){await sb.from('products').update(obj).eq('id',editId)}
-  else{await sb.from('products').insert(obj)}
+  else{const{data}=await sb.from('products').insert(obj).select().single();if(data)productId=data.id}
+  // Sincroniza sabores
+  if(productId){
+    for(const f of tempFlavors){
+      if(f._new&&!f._del){await sb.from('product_flavors').insert({product_id:productId,name:f.name.trim(),active:f.active,sort_order:0})}
+      else if(f._del&&!f._new){await sb.from('product_flavors').delete().eq('id',f.id)}
+      else if(!f._new&&!f._del){await sb.from('product_flavors').update({name:f.name.trim(),active:f.active}).eq('id',f.id)}
+    }
+  }
   closeModal();await loadAll();showToast(editId?'Produto atualizado!':'Produto adicionado!')
 }
 
