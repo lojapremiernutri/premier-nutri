@@ -195,19 +195,36 @@ function attachSwipe(){
   document.querySelectorAll('.gallery-track').forEach(track=>{
     if(track._swipe)return;track._swipe=true;
     const id=parseInt(track.id.replace('galtrack-',''));
-    let startX=0,curX=0,dragging=false,w=0,moved=false;
+    let startX=0,curX=0,dragging=false,w=0,moved=false,pointerId=null;
     const getN=()=>(PRODUCTS.find(p=>p.id===id).images||[]).length;
-    const down=x=>{if(getN()<2)return;dragging=true;moved=false;startX=curX=x;w=track.offsetWidth;track.style.transition='none'};
-    const move=x=>{if(!dragging)return;curX=x;moved=true;const diff=curX-startX;track.style.transform=`translateX(calc(${-(galleryIndex[id]||0)*100}% + ${diff}px))`};
-    const up=()=>{if(!dragging)return;dragging=false;track.style.transition='';const diff=curX-startX;const n=getN();if(moved&&Math.abs(diff)>w*0.15){if(diff<0)galleryIndex[id]=(galleryIndex[id]+1)%n;else galleryIndex[id]=(galleryIndex[id]-1+n)%n}updateGal(id)};
-    track.addEventListener('touchstart',e=>down(e.touches[0].clientX),{passive:true});
-    track.addEventListener('touchmove',e=>move(e.touches[0].clientX),{passive:true});
-    track.addEventListener('touchend',up);
-    track.addEventListener('touchcancel',up);
-    track.addEventListener('mousedown',e=>{e.preventDefault();down(e.clientX)});
-    track.addEventListener('mousemove',e=>{if(dragging)move(e.clientX)});
-    track.addEventListener('mouseup',up);
-    track.addEventListener('mouseleave',up);
+    const reset=()=>{dragging=false;pointerId=null;moved=false;track.style.transition='';updateGal(id)};
+    track.addEventListener('pointerdown',e=>{
+      if(getN()<2)return;
+      pointerId=e.pointerId;dragging=true;moved=false;
+      startX=curX=e.clientX;w=track.offsetWidth;
+      track.style.transition='none';
+      try{track.setPointerCapture(e.pointerId)}catch(_){}
+    });
+    track.addEventListener('pointermove',e=>{
+      if(!dragging||e.pointerId!==pointerId)return;
+      curX=e.clientX;
+      const diff=curX-startX;
+      if(Math.abs(diff)>4)moved=true;
+      track.style.transform=`translateX(calc(${-(galleryIndex[id]||0)*100}% + ${diff}px))`;
+    });
+    const finish=e=>{
+      if(!dragging||(e&&e.pointerId!==pointerId))return;
+      const diff=curX-startX,n=getN();
+      if(moved&&Math.abs(diff)>w*0.15){
+        if(diff<0)galleryIndex[id]=(galleryIndex[id]+1)%n;
+        else galleryIndex[id]=(galleryIndex[id]-1+n)%n;
+      }
+      try{track.releasePointerCapture(pointerId)}catch(_){}
+      reset();
+    };
+    track.addEventListener('pointerup',finish);
+    track.addEventListener('pointercancel',finish);
+    track.addEventListener('pointerleave',e=>{if(dragging&&e.pointerId===pointerId)finish(e)});
   });
 }
 
