@@ -12,8 +12,16 @@
 *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{background:var(--navy);color:var(--white);font-family:'Inter',sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif}a{color:inherit;text-decoration:none}img{display:block;max-width:100%}.wrap{max-width:1200px;margin:0 auto;padding:0 24px}@media(max-width:600px){.wrap{padding:0 16px}}
 header{position:sticky;top:0;z-index:60;background:rgba(11,24,41,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}nav{display:flex;align-items:center;justify-content:space-between;height:68px}.brand{display:flex;align-items:center;gap:11px}.logo-img{width:42px;height:42px;border-radius:10px;object-fit:cover;border:1.5px solid var(--white-20)}.brand-text{font-family:'Plus Jakarta Sans';font-weight:800;font-size:17px;color:#fff}.brand-sub{font-size:9.5px;color:var(--cyan);font-weight:600;letter-spacing:.1em;text-transform:uppercase}.nav-links{display:flex;gap:28px;font-size:14px;font-weight:500;color:var(--white-dim)}.nav-links a:hover{color:#fff}@media(max-width:800px){.nav-links{display:none}}
 .cart-btn{display:flex;align-items:center;gap:8px;background:var(--cyan);border:none;color:var(--navy);padding:10px 18px;border-radius:100px;cursor:pointer;font-family:'Inter';font-size:13.5px;font-weight:700;box-shadow:var(--shadow-cyan);transition:all .15s}.cart-btn:hover{background:#fff}.cart-badge{background:var(--yellow);color:var(--navy);font-size:11px;font-family:'IBM Plex Mono';font-weight:700;padding:1px 7px;border-radius:100px;min-width:19px;text-align:center}
-.banner-section{padding:24px 0 8px}.carousel{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--navy-card);box-shadow:var(--shadow-md);border:1px solid var(--border)}.carousel-track{display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1)}.banner-slide{min-width:100%;aspect-ratio:21/10;display:flex;align-items:center;justify-content:center;overflow:hidden}@media(max-width:700px){.banner-slide{aspect-ratio:16/10}}.banner-slide img{width:100%;height:100%;object-fit:cover}.banner-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;background:linear-gradient(135deg,#0B1829,#172A42,#0D3B66);color:rgba(255,255,255,.85)}.banner-ph .bp-title{font-family:'Plus Jakarta Sans';font-weight:800;font-size:clamp(18px,2.6vw,28px);color:#fff}.banner-ph .bp-sub{font-size:12px;font-family:'IBM Plex Mono';color:var(--cyan);opacity:.8}
-.carousel-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;z-index:3;transition:all .15s;backdrop-filter:blur(4px)}.carousel-nav:hover{background:var(--cyan);color:var(--navy);border-color:var(--cyan)}.carousel-nav.prev{left:14px}.carousel-nav.next{right:14px}@media(max-width:600px){.carousel-nav{width:32px;height:32px}.carousel-nav.prev{left:8px}.carousel-nav.next{right:8px}}.carousel-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:3}.dot{width:8px;height:8px;border-radius:50%;cursor:pointer;padding:0;border:none;background:rgba(255,255,255,.3);transition:all .2s}.dot.active{background:var(--cyan);width:22px;border-radius:100px}
+.banner-section{padding:24px 0 8px}.carousel{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--navy-card);box-shadow:var(--shadow-md);border:1px solid var(--border);aspect-ratio:1600/760}@media(max-width:700px){.carousel{aspect-ratio:1600/760}}
+.carousel-track{position:absolute;inset:0;display:flex;overflow-x:scroll;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-behavior:auto}
+.carousel-track.smooth{scroll-behavior:smooth}
+.carousel-track::-webkit-scrollbar{display:none}
+.banner-slide{flex:0 0 100%;width:100%;height:100%;scroll-snap-align:start;scroll-snap-stop:always;display:flex;align-items:center;justify-content:center;position:relative}
+.banner-slide img{width:100%;height:100%;object-fit:cover;pointer-events:none;user-select:none;-webkit-user-select:none}
+.banner-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;background:linear-gradient(135deg,#0B1829,#172A42,#0D3B66);color:rgba(255,255,255,.85)}
+.banner-ph .bp-title{font-family:'Plus Jakarta Sans';font-weight:800;font-size:clamp(18px,2.6vw,28px);color:#fff}
+.banner-ph .bp-sub{font-size:12px;font-family:'IBM Plex Mono';color:var(--cyan);opacity:.8}
+.carousel-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:3}.dot{width:8px;height:8px;border-radius:50%;cursor:pointer;padding:0;border:none;background:rgba(255,255,255,.3);transition:all .2s}.dot.active{background:var(--cyan);width:22px;border-radius:100px}
 .section-title{font-size:clamp(21px,2.8vw,28px);font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:6px}.section-subtitle{font-size:14px;color:var(--white-dim);margin-bottom:24px}
 .categories-section{padding:44px 0}.categories-row{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none}.categories-row::-webkit-scrollbar{display:none}.cat-chip{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--navy-card);border:1.5px solid var(--border);padding:16px 18px 14px;border-radius:var(--radius);cursor:pointer;min-width:106px;transition:all .16s}.cat-chip:hover{border-color:var(--cyan);transform:translateY(-2px)}.cat-chip.active{border-color:var(--cyan);background:var(--cyan)}.cat-ico{width:46px;height:46px;border-radius:12px;background:var(--cyan-10);display:flex;align-items:center;justify-content:center;transition:all .16s}.cat-ico svg{width:26px;height:26px;color:var(--cyan);transition:color .16s}.cat-chip.active .cat-ico{background:rgba(11,24,41,.25)}.cat-chip.active .cat-ico svg{color:var(--navy)}.cat-label{font-size:12px;font-weight:600;color:var(--white-dim);white-space:nowrap}.cat-chip.active .cat-label{color:var(--navy);font-weight:700}
 .products-section{padding-bottom:52px}.products-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:22px}.products-head .section-title{margin-bottom:0}.see-all{font-size:13.5px;font-weight:600;color:var(--cyan);cursor:pointer}.see-all:hover{text-decoration:underline}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}@media(max-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:440px){.grid{grid-template-columns:1fr}}
@@ -63,8 +71,6 @@ header{position:sticky;top:0;z-index:60;background:rgba(11,24,41,.92);backdrop-f
 
 <section class="banner-section"><div class="wrap"><div class="carousel">
   <div class="carousel-track" id="carousel-track"></div>
-  <button class="carousel-nav prev" onclick="moveBanner(-1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-  <button class="carousel-nav next" onclick="moveBanner(1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
   <div class="carousel-dots" id="carousel-dots"></div>
 </div></div></section>
 
@@ -172,11 +178,29 @@ async function init(){
 let bannerIndex=0,bannerTimer=null;
 function renderBanners(){
   if(!BANNERS.length){BANNERS=[{id:0,title:'Bem-vindo à Premier Nutri',image_url:null}]}
-  document.getElementById('carousel-track').innerHTML=BANNERS.map(b=>`<div class="banner-slide">${b.image_url?`<img src="${b.image_url}" alt="${b.title||''}">`:`<div class="banner-ph"><div class="bp-title">${b.title||'Premier Nutri'}</div><div class="bp-sub">Suplementos Delivery</div></div>`}</div>`).join('');
+  const track=document.getElementById('carousel-track');
+  track.innerHTML=BANNERS.map(b=>`<div class="banner-slide">${b.image_url?`<img src="${b.image_url}" alt="${b.title||''}">`:`<div class="banner-ph"><div class="bp-title">${b.title||'Premier Nutri'}</div><div class="bp-sub">Suplementos Delivery</div></div>`}</div>`).join('');
   document.getElementById('carousel-dots').innerHTML=BANNERS.map((_,i)=>`<button class="dot ${i===0?'active':''}" onclick="goBanner(${i})"></button>`).join('');
+  // Sincroniza bolinhas quando usuário desliza manualmente e pausa autoplay
+  if(!track._swipe){
+    track._swipe=true;
+    let scrollTimer=null;
+    track.addEventListener('scroll',()=>{
+      clearTimeout(scrollTimer);
+      scrollTimer=setTimeout(()=>{
+        const i=Math.round(track.scrollLeft/track.clientWidth);
+        if(i!==bannerIndex){bannerIndex=i;document.querySelectorAll('#carousel-dots .dot').forEach((d,j)=>d.classList.toggle('active',j===bannerIndex));restartAP()}
+      },100);
+    },{passive:true});
+  }
   updateBanner();
 }
-function updateBanner(){document.getElementById('carousel-track').style.transform=`translateX(-${bannerIndex*100}%)`;document.querySelectorAll('#carousel-dots .dot').forEach((d,i)=>d.classList.toggle('active',i===bannerIndex))}
+function updateBanner(){
+  const t=document.getElementById('carousel-track');
+  t.classList.add('smooth');
+  t.scrollLeft=bannerIndex*t.clientWidth;
+  document.querySelectorAll('#carousel-dots .dot').forEach((d,i)=>d.classList.toggle('active',i===bannerIndex));
+}
 function moveBanner(d){bannerIndex=(bannerIndex+d+BANNERS.length)%BANNERS.length;updateBanner();restartAP()}
 function goBanner(i){bannerIndex=i;updateBanner();restartAP()}
 function restartAP(){if(!CONFIG.banner_autoplay)return;clearInterval(bannerTimer);bannerTimer=setInterval(()=>{bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()},CONFIG.banner_interval||5000)}
