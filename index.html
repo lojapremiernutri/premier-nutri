@@ -69,10 +69,7 @@ header{position:sticky;top:0;z-index:60;background:rgba(11,24,41,.92);backdrop-f
   </button>
 </nav></div></header>
 
-<section class="banner-section"><div class="wrap"><div class="carousel">
-  <div class="carousel-track" id="carousel-track"></div>
-  <div class="carousel-dots" id="carousel-dots"></div>
-</div></div></section>
+
 
 <section class="categories-section" id="categorias"><div class="wrap">
   <div class="section-title">Categorias</div>
@@ -171,7 +168,7 @@ async function init(){
   const byProd={};(flavs||[]).forEach(f=>{(byProd[f.product_id]=byProd[f.product_id]||[]).push(f)});
   PRODUCTS.forEach(p=>p.flavors=byProd[p.id]||[]);
   document.getElementById('site-name').textContent=CONFIG.store_name||'Premier Nutri';
-  renderBanners();restartAP();renderCategories();renderProducts();updateCartUI();
+  renderCategories();renderProducts();updateCartUI();
   document.getElementById('see-all').style.display='none';
 }
 
